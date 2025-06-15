@@ -49,3 +49,13 @@ elif cmd.startswith("download "):
         s.sendall(data)
     else:
         s.send(b"File not found.")
+
+#uploads files#
+
+elif command.startswith("upload "):
+    path = command.split(" ", 1)[1]
+    client_socket.send(command.encode())
+    with open(path, "rb") as f:
+        client_socket.send(f.read())
+
+
