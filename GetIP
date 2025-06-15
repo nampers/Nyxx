@@ -1,0 +1,17 @@
+import socket
+import requests
+
+# --- Get Local IP Address ---
+def get_local_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(('10.255.255.255', 1)) # Connect to a dummy address to find local IP
+        IP = s.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1' # Fallback
+    finally:
+        s.close()
+    return IP
+
+local_ip_address = get_local_ip()
+print(f"Local IP Address: {local_ip_address}")
